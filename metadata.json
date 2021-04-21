@@ -1,0 +1,11 @@
+{
+  "name": "fortinet_facts",
+  "version": "0.0.1",
+  "summary": "Plan content for fetching and publishing fortinet device facts to the Connect application",
+  "license": "Apache-2.0",
+  "source": "https://github.com/puppetlabs/fortinet_facts",
+  "project_page": "https://github.com/puppetlabs/fortinet_facts",
+  "dependencies": [
+    { "name":"puppetlabs/stdlib","version_requirement":">= 6.0.0" }
+  ]
+}
