@@ -1,8 +1,9 @@
 {
   "name": "fortinet_facts",
   "version": "0.0.1",
-  "summary": "Plan content for fetching and publishing fortinet device facts to the Connect application",
+  "summary": "Plan content for fetching and publishing fortinet device facts to the Connect application -- DO NOT PUBLISH TO FORGE",
   "license": "Apache-2.0",
+  "author": "puppet",
   "source": "https://github.com/puppetlabs/fortinet_facts",
   "project_page": "https://github.com/puppetlabs/fortinet_facts",
   "dependencies": [
