@@ -92,18 +92,11 @@ get sys status
     # puppetdb_command. Results are gathered in to an array of true booleans for
     # successful submissions or target names for any failed submissions
     $results = $all_target_facts.map |$target_fact_payload| {
-      $command_result = puppetdb_command('replace_facts', 5, $target_fact_payload)
-      if $command_result.ok() {
-        true
-      } else {
-        $target_fact_payload['certname']
-      }
+      puppetdb_command('replace_facts', 5, $target_fact_payload)
     }
-    # Return the number of targets for which the fact submission worked, and an
-    # array of target names for any targets that failed
+    # Return the number of targets for which the plan was able to submit facts
     $plan_result = {
-      'completed' => count($results, true),
-      'failed' => $results.filter |$single_result| { $single_result != true }
+      'completed' => count($results, true)
     }
     return $plan_result
   }
