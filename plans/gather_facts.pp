@@ -88,10 +88,23 @@ get sys status
   if $dry_run {
     return $all_target_facts
   } else {
-    # Iterate over all target facts collected and publish
-    # them to the DB using puppetdb_command
-    $all_target_facts.each |$target_fact_payload| {
-      puppetdb_command('replace_facts', 5, $target_fact_payload)
+    # Iterate over all target facts collected and publish them to the DB using
+    # puppetdb_command. Results are gathered in to an array of true booleans for
+    # successful submissions or target names for any failed submissions
+    $results = $all_target_facts.map |$target_fact_payload| {
+      $command_result = puppetdb_command('replace_facts', 5, $target_fact_payload)
+      if $command_result.ok() {
+        true
+      } else {
+        $target_fact_payload['certname']
+      }
     }
+    # Return the number of targets for which the fact submission worked, and an
+    # array of target names for any targets that failed
+    $plan_result = {
+      'completed' => count($results, true),
+      'failed' => $results.filter |$single_result| { $single_result != true }
+    }
+    return $plan_result
   }
 }
