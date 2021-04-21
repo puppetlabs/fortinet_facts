@@ -58,9 +58,12 @@ Once the `static_facts.yaml` file is committed to the project, you can run the `
 `fortinet_facts::gather_facts` includes a parameter called `dry_run` that causes the plan to run the gathering operations but stops before the publishing step. When the plan is run with `dry_run=true` it will not attempt any fact publish operations, and instead it will write out what it would have published for each target as the result of the plan. To run the plan as a "dry run":
 
 ```
-$ bolt plan run fortinet_facts::gather_facts --target example-target.com dry_run=true
+$ bolt plan run fortinet_facts::gather_facts --target example-target.com static_facts_file="my_project/static_facts.yaml" dry_run=true
 ```
 
-This should run the gathering operation and output the facts it would have published for the target `example-target.com`.
+This should run the gathering operation and output the facts it would have published for the target `example-target.com`. Here's what each parameter to the plan does:
+* `--target example-target.com` fills in the `$targets` param to the plan for which targets to gather facts for
+* `static_facts_file="my_project/static_facts.yaml"` identifies the location of the static facts YAML data (committed earlier during the [Generating the static facts file](#generating-the-static-facts-file) section). More details on this parameter and the format of the value are available if you run `bolt plan show fortinet_facts::gather_facts`
+* `dry_run=true` changes the behavior of the plan so that it does not perform the publish operation
 
-Once you are ready to actually publish facts: simply set the `dry_run` parameter to `false` when running inside the Connect app to have the plan actually publish the gathered facts. *NOTE*: Running `fortinet_facts::gather_facts` from bolt with `dry_run=false` will _not_ publish any facts to Connect, you _must_ run this plan from within Connect to actually publish anything.
+Once you are ready to actually publish facts: simply set the `dry_run` parameter to `false` when running inside the Connect app to have the plan actually publish the gathered facts. *NOTE*: Running `fortinet_facts::gather_facts` from Bolt with `dry_run=false` will _not_ publish any facts to Connect, you _must_ run this plan from within Connect to actually publish anything.
