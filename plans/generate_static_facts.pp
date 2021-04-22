@@ -6,7 +6,8 @@ plan fortinet_facts::generate_static_facts() {
   # produce an array of fact sets for each target
   $all_target_facts = get_targets('all').map |$target_data| {
     # The structure of this return value to the map operation is
-    # somewhat strange: we return a nested array of the form:
+    # somewhat strange: we return an array for each target
+    # of the form:
     #
     #  [ <target name string>, { 'facts' => <hash of facts> } ]
     #

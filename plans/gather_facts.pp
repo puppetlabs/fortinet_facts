@@ -43,61 +43,49 @@ get sys status
   # operation will return each processed result combined in an array.
   $all_target_facts = $command_result.map |$target_result| {
     $target_name = String($target_result.target.name)
-    if $target_result.ok() {
-      # Take the raw output from the commands run on the target and ensure
-      # they are formatted as a string.
-      $raw_output = String($target_result.value()['stdout'])
-      # Pull the static facts for this target form the static_facts hash
-      $target_static_facts = $static_facts[$target_name]['facts']
-      # Parse the output from the run_command operation in to a hash of
-      # key value pairs. These will become facts. The sys_output_to_hash
-      # function is defined in:
-      # fortinet_facts/lib/puppet/functions/sys_output_to_hash.rb
-      $target_facts = sys_output_to_hash($raw_output)
-      # Create a result hash formatted for use with the puppetdb_command
-      # action performed later. The format for this hash is defined by the
-      # API called to actually publish these facts.
-      #
-      # Values for 'environment', 'producer_timestamp', and 'producer' are
-      # all defaults that need to be provided for the API to work, but
-      # generally aren't useful in the context of Connect. All three values
-      # are set for us always and shouldn't be modified.
-      #
-      # Values for 'certname' and 'values' are the important pieces of data
-      # for this facts gathering operation:
-      #   * 'certname' is what identifies the target that will have facts
-      #      updated in the database.
-      #   * 'values' are the fact values that will be published in to the
-      #     database.
-      $result = {
-        'certname' => $target_name,
-        'environment' => 'production',
-        'producer_timestamp' => "${Timestamp.new().strftime('%Y-%m-%dT%H:%M:%S%:z')}",
-        'producer' => 'connect',
-        # The actual facts set for each target will be a merged hash of
-        # both the static and dynamically generated facts
-        'values' => $target_static_facts + $target_facts
-      }
-      # Finally, actually return the result hash to the `map` operation.
-      $result
+    # Take the raw output from the commands run on the target and ensure
+    # they are formatted as a string.
+    $raw_output = String($target_result.value()['stdout'])
+    # Pull the static facts for this target form the static_facts hash
+    $target_static_facts = $static_facts[$target_name]['facts']
+    # Parse the output from the run_command operation in to a hash of
+    # key value pairs. These will become facts. The sys_output_to_hash
+    # function is defined in:
+    # fortinet_facts/lib/puppet/functions/sys_output_to_hash.rb
+    $target_facts = sys_output_to_hash($raw_output)
+    # Create a result hash formatted for use with the puppetdb_command
+    # action performed later. The format for this hash is defined by the
+    # API called to actually publish these facts.
+    #
+    # Values for 'environment', 'producer_timestamp', and 'producer' are
+    # all defaults that need to be provided for the API to work, but
+    # generally aren't useful in the context of Connect. All three values
+    # are set for us always and shouldn't be modified.
+    #
+    # Values for 'certname' and 'values' are the important pieces of data
+    # for this facts gathering operation:
+    #   * 'certname' is what identifies the target that will have facts
+    #      updated in the database.
+    #   * 'values' are the fact values that will be published in to the
+    #     database.
+    $result_hash = {
+      'certname' => $target_name,
+      'environment' => 'production',
+      'producer_timestamp' => "${Timestamp.new().strftime('%Y-%m-%dT%H:%M:%S%:z')}",
+      'producer' => 'connect',
+      # The actual facts set for each target will be a merged hash of
+      # both the static and dynamically generated facts
+      'values' => $target_static_facts + $target_facts
     }
-    # If the result was a failure (i.e. if $target_result.ok() returns
-    # false) we do nothing. Facts will not be updated for any target
-    # that fails the run_command operation above.
+    $result_hash
   }
   if $dry_run {
     return $all_target_facts
   } else {
     # Iterate over all target facts collected and publish them to the DB using
-    # puppetdb_command. Results are gathered in to an array of true booleans for
-    # successful submissions or target names for any failed submissions
-    $results = $all_target_facts.map |$target_fact_payload| {
+    # puppetdb_command.
+    $all_target_facts.each |$target_fact_payload| {
       puppetdb_command('replace_facts', 5, $target_fact_payload)
     }
-    # Return the number of targets for which the plan was able to submit facts
-    $plan_result = {
-      'completed' => count($results, true)
-    }
-    return $plan_result
   }
 }
