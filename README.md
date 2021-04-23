@@ -4,8 +4,16 @@ fortinet_facts
 *DISCLAIMER* This module is _not_ published to the forge and is explicitly _not_ under active maintenance from Puppet.
 
 ## Overview
-
 Plan content for fetching and publishing fortinet device facts to the Connect application.
+
+## Installation
+To install this module to a Bolt project, add the following to the `modules` data in [bolt-project.yaml](https://puppet.com/docs/bolt/latest/bolt_project_reference.html):
+
+```
+modules:
+  - git: git@github.com:puppetlabs/fortinet_facts.git
+    ref: main
+```
 
 ## Usage
 The following usage examples use the Bolt CLI to show how the plan content in this module works. `forinet_facts::gather_facts` can (and should) also be run inside the Connect application with the same parameters provided through the Connect UI.
