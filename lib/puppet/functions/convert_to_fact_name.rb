@@ -34,5 +34,15 @@ Puppet::Functions.create_function(:'convert_to_fact_name') do
     #   character that is not a letter or underscore.
     # * Third, .downcase changes any capital letters to lowercase
     raw_string.strip.gsub(/\W/, '_').downcase
+  rescue Exception => e
+    # Capture _all_ exceptions from this operation and wrap them in
+    # a Bolt::Error type which is thrown. We wrap all errors in this
+    # type so that when plans use this function they can catch any
+    # failures with catch_errors() (that function only catches the
+    # Bolt::Error type).
+    raise Bolt::Error.new(
+      "failed to translate '#{raw_string}' to fact name: #{e.message}",
+      'fact-name-translation-failure'
+    )
   end
 end
