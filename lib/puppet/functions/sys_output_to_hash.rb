@@ -64,6 +64,16 @@ Puppet::Functions.create_function(:'sys_output_to_hash') do
     # Return the fully formed translated_output hash as the result
     # of this puppet function call
     translated_output
+  rescue Exception => e
+    # Capture _all_ exceptions from this operation and wrap them in
+    # a Bolt::Error type which is thrown. We wrap all errors in this
+    # type so that when plans use this function they can catch any
+    # failures with catch_errors() (that function only catches the
+    # Bolt::Error type).
+    raise Bolt::Error.new(
+      "Failed to translate raw output to facts: #{e.message}",
+      'output-translation-failure'
+    )
   end
 
   # Remove any machine prompt strings from the raw output, leaving
